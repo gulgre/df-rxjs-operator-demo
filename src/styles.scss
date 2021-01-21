@@ -20,7 +20,7 @@ $df-rxjs-operator-demo-warn: mat-palette($mat-red);
 
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as "color" or "typography".
-$df-rxjs-operator-demo-theme: mat-light-theme((
+$df-rxjs-operator-demo-light-theme: mat-light-theme((
   color: (
     primary: $df-rxjs-operator-demo-primary,
     accent: $df-rxjs-operator-demo-accent,
@@ -28,10 +28,33 @@ $df-rxjs-operator-demo-theme: mat-light-theme((
   )
 ));
 
+.dark-theme {
+  color: $light-primary-text;
+  background-color: #232323;
+  $dark-primary: mat-palette($mat-yellow);
+  $dark-accent: mat-palette($mat-grey, A400, A100, A700);
+  $dark-warn: mat-palette($mat-red);
+  $dark-theme: mat-dark-theme($dark-primary, $dark-accent, $dark-warn);
+
+  @include angular-material-theme($dark-theme);
+
+  a.mat-tab-link.is-active {
+    background-color: mat-color($dark-accent);
+    color: white; 
+   }
+}
+
+$df-rxjs-operator-demo-dark-theme: mat-light-theme((
+  color: (
+    primary: $df-rxjs-operator-demo-primary,
+    accent: $df-rxjs-operator-demo-accent,
+    warn: $df-rxjs-operator-demo-warn,    
+  ),  
+));
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
-@include angular-material-theme($df-rxjs-operator-demo-theme);
+@include angular-material-theme($df-rxjs-operator-demo-light-theme);
 
 /* You can add global styles to this file, and also import other style files */
 
@@ -39,6 +62,5 @@ html, body { height: 100%; }
 body { margin: 10px; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 a.mat-tab-link.is-active {
- background-color: mat-color($df-rxjs-operator-demo-accent);
- color: white; 
-}
+  background-color: mat-color($df-rxjs-operator-demo-primary);  
+ }
