@@ -12,8 +12,8 @@
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$df-rxjs-operator-demo-primary: mat-palette($mat-indigo);
-$df-rxjs-operator-demo-accent: mat-palette($mat-pink, A200, A100, A400);
+$df-rxjs-operator-demo-primary: mat-palette($mat-blue-grey);
+$df-rxjs-operator-demo-accent: mat-palette($mat-blue, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
 $df-rxjs-operator-demo-warn: mat-palette($mat-red);
@@ -36,4 +36,9 @@ $df-rxjs-operator-demo-theme: mat-light-theme((
 /* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
-body { margin: 5px; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 10px; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+a.mat-tab-link.is-active {
+ background-color: mat-color($df-rxjs-operator-demo-accent);
+ color: white; 
+}

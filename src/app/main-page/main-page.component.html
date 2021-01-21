@@ -7,9 +7,9 @@
 </p>
 
 <nav mat-tab-nav-bar animationDuration="0">
-    <a mat-tab-link routerLink='basic-operations' (click)="activeLink = 'Basic'" [active]="activeLink == 'Basic'">Basic</a>            
-    <a mat-tab-link routerLink='combined-operations' (click)="activeLink = 'Combined'" [active]="activeLink == 'Combined'">Combined</a>            
-    <a mat-tab-link routerLink='higher-order-operations' (click)="activeLink = 'HigherOrder'" [active]="activeLink == 'HigherOrder'">Higher Order</a>            
-    <a mat-tab-link routerLink='complex-operations' (click)="activeLink = 'Complex'" [active]="activeLink == 'Complex'">Complex</a>                
+    <a mat-tab-link routerLinkActive='is-active' routerLink='basic-operations'>Basic</a>            
+    <a mat-tab-link routerLinkActive='is-active' routerLink='combined-operations'>Combined</a>            
+    <a mat-tab-link routerLinkActive='is-active' routerLink='higher-order-operations'>Higher Order</a>            
+    <a mat-tab-link routerLinkActive='is-active' routerLink='complex-operations'>Complex</a>                
 </nav>
 <router-outlet></router-outlet>
