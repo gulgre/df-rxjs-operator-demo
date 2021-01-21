@@ -8,9 +8,9 @@ export class DataService {
 
   constructor() { }
 
-  getBasicDataStream(duration: number, count: number) {
+  getBasicDataStream(duration: number, count: number, offset: number = 0) {
     return interval(duration).pipe(
-      map(number => number + 1),
+      map(number => number + 1 + offset),
       take(count)
     );
   }  

@@ -18,6 +18,6 @@ export class DemoContentComponent implements OnInit {
   }
 
   activateDemo(operation: DemoOperation) {
-    operation.callback(operation.observable$).subscribe((data => this.output[operation.title] = data));
+    operation.callback(operation.observables$).subscribe(data => this.output[operation.title] = data);
   }
 }

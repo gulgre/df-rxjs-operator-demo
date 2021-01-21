@@ -1,1 +1,26 @@
-<p>higher-order works!</p>
+<dwf-demo-content [operations]='operations'>
+    <p>
+        Life gets complicated. So does incoming data. There are occasions where you will need to
+    </p>
+        <ul>
+            <li>observe data from multiple sources, </li>
+            <li>or observe data that is intended to replace the previous data 
+                <ul>
+                    <li>data sent in a search field -- like Google's typeahead search</li>
+                </ul>
+            </li>
+            <li>or observe data and ignore anything that comes after it until a process is completed 
+                <ul>
+                    <li>ever made multiple purchases on a site because you clicked "Submit" twice?</li>
+                </ul>
+            </li>            
+        </ul> 
+                
+    <p>
+        There are two incoming data streams: 
+    </p>
+        <ol>
+            <li>numbers <strong>1 through 10</strong>, emitted every <strong>400 ms</strong>.</li>
+            <li>numbers <strong>11 through 20</strong>, emitted every <strong>300 ms</strong>.</li>
+        </ol>    
+</dwf-demo-content>
