@@ -1,0 +1,23 @@
+<div class='summary'>
+    <ng-content></ng-content>
+</div>
+<mat-expansion-panel *ngFor='let operation of operations'>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{operation.title}}
+      </mat-panel-title>
+      <mat-panel-description>
+        {{operation.shortDescription}}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    {{operation.description}}
+    <div class='code-display'>
+        <pre>{{operation.code}}</pre>
+    </div>
+    <div class='try-it-area'>
+        <button (click)='activateDemo(operation)'>Try it!</button>
+        <div class='output'>
+            {{output[operation.title]}}
+        </div>
+    </div>
+  </mat-expansion-panel>

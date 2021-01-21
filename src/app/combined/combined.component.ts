@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { DataService } from '../services/data.service';
+import { OperationService } from '../services/operation.service';
 
 @Component({
   selector: 'app-combined',
@@ -7,8 +9,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class CombinedComponent implements OnInit {
 
-  constructor() { }
-
+  constructor(private dataService: DataService, private operationService: OperationService) { }
+  
+  operations= this.operationService.getCombinedOperations(() => this.dataService.getBasicDataStream(500,10));  
   ngOnInit(): void {
   }
 
