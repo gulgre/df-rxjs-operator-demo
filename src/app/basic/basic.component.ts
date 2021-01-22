@@ -11,7 +11,10 @@ export class BasicComponent implements OnInit {
 
   constructor(private dataService: DataService, private operationService: OperationService) { }
   
-  operations= this.operationService.getBasicOperations(() => this.dataService.getBasicDataStream(1000,5));  
+  operations= this.operationService.getBasicOperations(
+    () => this.dataService.getBasicDataStream(1000,5),
+    () => this.dataService.getBasicDataStream(800,5,5),
+    );  
   ngOnInit(): void {
   }
 

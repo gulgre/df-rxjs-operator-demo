@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { concat, interval, Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { DemoOperation } from '../../demo-operation';
 
 @Component({
@@ -17,7 +19,15 @@ export class DemoContentComponent implements OnInit {
     });
   }
 
-  activateDemo(operation: DemoOperation) {
-    operation.callback(operation.observables$).subscribe(data => this.output[operation.title] = data);
+  activateDemo(operation: DemoOperation) {        
+    operation.callback(operation.observables$).subscribe(data => {
+      console.log(data);
+      if (data instanceof Observable) {        
+        data.subscribe(innerData => this.output[operation.title] = innerData);
+      }
+      else {
+        this.output[operation.title] = data;
+      }
+    });
   }
 }

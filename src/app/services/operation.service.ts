@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { Observable, of } from "rxjs";
-import { concatMap, exhaustMap, filter, map, mergeMap, scan, switchMap, tap } from "rxjs/operators";
+import { concat, merge, Observable, ObservableInput, of } from "rxjs";
+import { concatMap, exhaust, exhaustMap, filter, map, mergeAll, mergeMap, scan, switchMap, take, tap } from "rxjs/operators";
 import { DemoOperation } from "../shared/demo-operation";
 
 
@@ -9,35 +9,40 @@ import { DemoOperation } from "../shared/demo-operation";
   })
 export class OperationService {
 
-    tapOperation = (source: Observable<any>[]) => source[0].pipe(
+    tapOperation = (sources: Observable<any>[]) => sources[0].pipe(
         tap((data) => console.log(data))
     );
 
-    mapOperation = (source: Observable<any>[]) => source[0].pipe(
+    mapOperation = (sources: Observable<any>[]) => sources[0].pipe(
         map((data) => `The incoming data is ${data}, and twice that is ${data * 2}.`)
     );
 
-    filterOperation = (source: Observable<any>[]) => source[0].pipe(
+    filterOperation = (sources: Observable<any>[]) => sources[0].pipe(
         filter((data) => data % 2 === 0)
     );
 
-    scanOperation = (source: Observable<any>[]) => source[0].pipe(
+    scanOperation = (sources: Observable<any>[]) => sources[0].pipe(
         scan((acc: number[], data: number) => [...acc, data], [])
     );
 
-    tapMapOperation = (source: Observable<any>[]) => source[0].pipe(
+    concatOperation = (sources: Observable<any>[]) => concat(...sources);
+    mergeOperation = (sources: Observable<any>[]) => merge(...sources);
+    
+    tapMapOperation = (sources: Observable<any>[]) => sources[0].pipe(
         tap(data => console.log(`About to double ${data}`)),
         map((data: number) => `The incoming data is ${data}, and twice that is ${data * 2}.`)
     );
 
-    filterScanOperation = (source:Observable<any>[]) => source[0].pipe(
+    filterScanOperation = (sources: Observable<any>[]) => sources[0].pipe(
         filter((data) => data % 2 === 0),
         scan((acc: number[], data: number) => [...acc, data], [])
     );
-    concatMapOperation = (sources: Observable<any>[]) => {
-        return of(0).pipe(
-            concatMap(_ => [...sources]),            
+    
+    concatMapOperation = (sources: ObservableInput<any>[]) => {
+        return of().pipe(
+            switchMap(_ => sources)
         );                    
+
     }
     switchMapOperation = (sources: Observable<any>[]) => {
         return of().pipe(
@@ -56,7 +61,7 @@ export class OperationService {
     }
     
     
-    getBasicOperations(observableFactory: () => Observable<any>) {
+    getBasicOperations(...observableFactories: (() => Observable<any>)[]) {
         let operations: DemoOperation[] = [
             {
                 title:'tap',
@@ -65,7 +70,7 @@ export class OperationService {
                 and perform an operation on it (logging, sending elsewhere), and the data that came in is the same as the data that goes out. Open the console log (F12), 
                 and notice that as the data is coming through and outputting on the screen, the console log is also getting the same data logged to it.`,
                 code: 'tap((data) => console.log(data))',
-                observables$: [observableFactory()],
+                observables$: observableFactories.map(f => f()),
                 callback: this.tapOperation
             },
             {
@@ -75,7 +80,7 @@ export class OperationService {
                 This is useful for transforming numeric data into a string message that contains that, doing calculations on incoming data, or fitting the incoming data into a
                 class that another component/method is expecting.`,
                 code: 'map((data) => `The incoming data is ${data}, and twice that is ${data * 2}.`)',
-                observables$: [observableFactory()],
+                observables$: observableFactories.map(f => f()),
                 callback: this.mapOperation
             },
             {
@@ -84,18 +89,54 @@ export class OperationService {
                 description: `Let's be honest, not every bit of data is useful. This operation lets you cut out incoming data that doesn't fit the mold. 
                 This example filters out all odd values. `,
                 code: 'filter((data) => data % 2 === 0)',
-                observables$: [observableFactory()],
+                observables$: observableFactories.map(f => f()),
                 callback: this.filterOperation
+            },
+            {
+                title:'concat',
+                shortDescription: `Combines multiple observables under one observable, preserving order`,
+                description: `This isn't an operator function, it's an rxjs static method that lets you combine streams into one. When one stream comes in, 
+                the entirety of that stream gets processed until it completes, and then the next one follows after that.
+
+                This is easy to mess up if you're not explicitly concatenating streams. If, say, you want to concatenate an array of observables, make sure you use
+                the spread operator -- concat(...sources) instead of just passing in the straight array of observables -- concat(sources)
+
+                There are two data streams being merged; one is a data stream of numbers 1 through 5, emitted every second. The other is a data stream of 
+                numbers 6 through 10, emitted every 800ms.
+
+                Notice how the numbers still maintain their order.`,                
+                code: 'concat(source1, source2, source3, ...) OR concat(...sources)',
+                observables$: observableFactories.map(f => f()),
+                callback: this.concatOperation
+            },
+            {
+                title:'merge',
+                shortDescription: `Combines multiple observables under one observable, without preserving the order.`,
+                description: `This isn't an operator function, it's an rxjs static method that lets you combine streams into one. 
+                When multiple streams are merged, each emitted value gets processed immediately in the pipeline.                
+                
+                This is easy to mess up if you're not explicitly concatenating streams. If, say, you want to merge an array of observables, make sure you use
+                the spread operator -- merge(...sources) instead of just passing in the straight array of observables -- merge(sources)
+
+                There are two data streams being merged; one is a data stream of numbers 1 through 5, emitted every second. The other is a data stream of 
+                numbers 6 through 10, emitted every 800ms.
+
+                Notice how the numbers jump out of order.`,                
+                code: 'merge(source1, source2, source3, ...) OR merge(...sources)',
+                observables$: observableFactories.map(f => f()),
+                callback: this.mergeOperation
             },
             {
                 title:'scan',
                 shortDescription: `Accumulates everything emitted into an array.`,
                 description: `Sometimes you want to combine all the data that comes through, either in an array, or a sum. In this example, the "accumulator" is just an array,
                 and each item that comes in gets added to the array.`,
-                code: 'scan((acc: number[], data: number) => [...acc, data], [])',
-                observables$: [observableFactory()],
+                code: 'source.pipe(\r\n' + 
+                    '  scan((acc: number[], data: number) => [...acc, data], [])\r\n' + ')',                
+                observables$: observableFactories.map(f => f()),
                 callback: this.scanOperation
             },
+            
         ]
         return operations;
     }
