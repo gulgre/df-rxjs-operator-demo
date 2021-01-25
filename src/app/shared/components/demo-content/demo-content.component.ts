@@ -25,8 +25,7 @@ export class DemoContentComponent implements OnInit {
     operation.callback(...operation.observables$).pipe(
       tap(o => ++timesCalled),
     ).subscribe(
-      data => {
-        console.log(data);      
+      data => {              
         this.output[operation.title] = data;
       },
       (err) => console.log(err),
