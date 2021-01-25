@@ -189,7 +189,7 @@ export class OperationService {
                 
                 This function also ensures that every emitted piece of data is processed.`,
                 code: '... .pipe(\n' + 
-                    'concatMap(_ => sources)\n' +
+                    '  concatMap(dataEmitted => getObservableDataFromThisData(dataEmitted)\n' +
                 '); ',
                 observables$: [outerObservableFactory()],
                 callback: this.concatMapOperationFactory(innerObservableFactory)
@@ -204,7 +204,7 @@ export class OperationService {
                 Note that this function does not guarantee to process all data, please use this method with that understanding.`,                
                 code: 
                     '... .pipe(\n' + 
-                    '  switchMap(_ => sources)\n' +
+                    '  switchMap(dataEmitted => getObservableDataFromThisData(dataEmitted)\n' +
                 '); ',
                 observables$: [outerObservableFactory()],
                 callback: this.switchMapOperationFactory(innerObservableFactory)
@@ -217,7 +217,7 @@ export class OperationService {
                 This function also ensures that every emitted piece of data is processed.`,
                 code: 
                     '... .pipe(\n' + 
-                    '  mergeMap(_ => sources)\n' +
+                    '  mergeMap(dataEmitted => getObservableDataFromThisData(dataEmitted)\n' +
                 '); ',
                 observables$: [outerObservableFactory()],
                 callback: this.mergeMapOperationFactory(innerObservableFactory)
@@ -225,14 +225,13 @@ export class OperationService {
             {
                 title:'exhaustMap',
                 shortDescription: 'Flattens all inner data streams into a single stream, not accepting any incoming data streams until the current inner stream is processing.',
-                description: `Filtering on its own has little value, but if you can collect all the filtered values into one item, the advantages of filter grows exponentially. This example
-                filters out all odd values, like in the basic example, and then combines those results into an array, like in the basic example. One of the most common uses of this
-                is preventing users from submitting a form twice.
+                description: `When you care about completing the current process before even considering doing more work, exhaustMap is the function to use. One of the most common uses of this
+                is preventing users from submitting a form twice by going crazy with the clicking.
                 
                 Note that this function does not guarantee to process all data, please use this method with that understanding.`,
                 code: 
                     '... .pipe(\n' + 
-                    '  exhaustMap(_ => sources)\n' +
+                    '  exhaustMap(dataEmitted => getObservableDataFromThisData(dataEmitted)\n' +
                 '); ',
                 observables$: [outerObservableFactory()],
                 callback: this.exhaustMapOperationFactory(innerObservableFactory)
