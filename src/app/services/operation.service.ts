@@ -189,7 +189,7 @@ export class OperationService {
                 
                 This function also ensures that every emitted piece of data is processed.`,
                 code: '... .pipe(\n' + 
-                    '  concatMap(dataEmitted => getObservableDataFromThisData(dataEmitted)\n' +
+                    '  concatMap(dataEmitted => getObservableDataFromThisData(dataEmitted))\n' +
                 '); ',
                 observables$: [outerObservableFactory()],
                 callback: this.concatMapOperationFactory(innerObservableFactory)
@@ -204,7 +204,7 @@ export class OperationService {
                 Note that this function does not guarantee to process all data, please use this method with that understanding.`,                
                 code: 
                     '... .pipe(\n' + 
-                    '  switchMap(dataEmitted => getObservableDataFromThisData(dataEmitted)\n' +
+                    '  switchMap(dataEmitted => getObservableDataFromThisData(dataEmitted))\n' +
                 '); ',
                 observables$: [outerObservableFactory()],
                 callback: this.switchMapOperationFactory(innerObservableFactory)
@@ -217,7 +217,7 @@ export class OperationService {
                 This function also ensures that every emitted piece of data is processed.`,
                 code: 
                     '... .pipe(\n' + 
-                    '  mergeMap(dataEmitted => getObservableDataFromThisData(dataEmitted)\n' +
+                    '  mergeMap(dataEmitted => getObservableDataFromThisData(dataEmitted))\n' +
                 '); ',
                 observables$: [outerObservableFactory()],
                 callback: this.mergeMapOperationFactory(innerObservableFactory)
@@ -231,7 +231,7 @@ export class OperationService {
                 Note that this function does not guarantee to process all data, please use this method with that understanding.`,
                 code: 
                     '... .pipe(\n' + 
-                    '  exhaustMap(dataEmitted => getObservableDataFromThisData(dataEmitted)\n' +
+                    '  exhaustMap(dataEmitted => getObservableDataFromThisData(dataEmitted))\n' +
                 '); ',
                 observables$: [outerObservableFactory()],
                 callback: this.exhaustMapOperationFactory(innerObservableFactory)
