@@ -6,5 +6,5 @@ export interface DemoOperation {
     description: string;   
     code?: string; 
     observables$: Observable<any>[],
-    callback: (source: Observable<any>[]) => Observable<any>;
+    callback: (...source: Observable<any>[]) => Observable<any>;
 }

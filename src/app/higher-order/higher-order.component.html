@@ -1,9 +1,16 @@
 <dwf-demo-content [operations]='operations'>
     <p>
-        Life gets complicated. So does incoming data. There are occasions where you will need to
+        Life gets complicated. So does incoming data. In many cases, especially dealing with data that comes from a server, you will have to listen for user input --
+        such as mouse clicks or text input, and using that information, spin off a new Observable in order to retrieve data from the server. In the end, this would 
+        force you to write up some sort of nested observable, that says on the outside, listen for clicks, and for each click, create a new observable that uses 
+        the HttpClient, and then subscribe to <em>that</em>. This can get messy quite quickly, especially if the response of that is supposed to spin off yet another
+        observable. RxJS has 4 very useful built in mapping functions that help you "flatten" all of these so that you don't have to keep subscribing (or keep wondering
+        why your observables aren't actually returning data).
     </p>
-        <ul>
-            <li>observe data from multiple sources, </li>
+    <p>
+        There are several occasions when you want to order these inner observables differently:
+    </p>
+        <ul>            
             <li>or observe data that is intended to replace the previous data 
                 <ul>
                     <li>data sent in a search field -- like Google's typeahead search</li>
@@ -20,7 +27,7 @@
         There are two incoming data streams: 
     </p>
         <ol>
-            <li>numbers <strong>1 through 10</strong>, emitted every <strong>400 ms</strong>.</li>
-            <li>numbers <strong>11 through 20</strong>, emitted every <strong>300 ms</strong>.</li>
+            <li>The outer observable, numbers <strong>1 through 10</strong>, emitted every <strong>400 ms</strong>.</li>
+            <li>The inner observable, numbers ([outer observable] * 10 + [1 through 5], emitted every <strong>300 ms</strong>.</li>
         </ol>    
 </dwf-demo-content>

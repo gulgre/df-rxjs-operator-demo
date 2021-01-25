@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { concat, interval, Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { take, tap } from 'rxjs/operators';
 import { DemoOperation } from '../../demo-operation';
 
 @Component({
@@ -19,15 +19,22 @@ export class DemoContentComponent implements OnInit {
     });
   }
 
-  activateDemo(operation: DemoOperation) {        
-    operation.callback(operation.observables$).subscribe(data => {
-      console.log(data);
-      if (data instanceof Observable) {        
-        data.subscribe(innerData => this.output[operation.title] = innerData);
-      }
-      else {
+  activateDemo(operation: DemoOperation) {  
+    let timesCalled = 0;
+    let startTime = new Date();
+    operation.callback(...operation.observables$).pipe(
+      tap(o => ++timesCalled),
+    ).subscribe(
+      data => {
+        console.log(data);      
         this.output[operation.title] = data;
-      }
-    });
+      },
+      (err) => console.log(err),
+      () => {
+        let endTime = new Date();
+        let milliseconds = endTime.valueOf() - startTime.valueOf();
+        this.output[operation.title]+= ` (this data was processed ${timesCalled} times, and took ${milliseconds} ms to complete.)`
+        
+      });
   }
 }

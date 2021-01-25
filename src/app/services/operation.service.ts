@@ -9,55 +9,64 @@ import { DemoOperation } from "../shared/demo-operation";
   })
 export class OperationService {
 
-    tapOperation = (sources: Observable<any>[]) => sources[0].pipe(
+    tapOperation = (...sources: Observable<any>[]) => sources[0].pipe(
         tap((data) => console.log(data))
     );
 
-    mapOperation = (sources: Observable<any>[]) => sources[0].pipe(
+    mapOperation = (...sources: Observable<any>[]) => sources[0].pipe(
         map((data) => `The incoming data is ${data}, and twice that is ${data * 2}.`)
     );
 
-    filterOperation = (sources: Observable<any>[]) => sources[0].pipe(
+    filterOperation = (...sources: Observable<any>[]) => sources[0].pipe(
         filter((data) => data % 2 === 0)
     );
 
-    scanOperation = (sources: Observable<any>[]) => sources[0].pipe(
+    scanOperation = (...sources: Observable<any>[]) => sources[0].pipe(
         scan((acc: number[], data: number) => [...acc, data], [])
     );
 
-    concatOperation = (sources: Observable<any>[]) => concat(...sources);
-    mergeOperation = (sources: Observable<any>[]) => merge(...sources);
+    concatOperation = (...sources: Observable<any>[]) => concat(...sources);
+    mergeOperation = (...sources: Observable<any>[]) => merge(...sources);
     
-    tapMapOperation = (sources: Observable<any>[]) => sources[0].pipe(
+    tapMapOperation = (...sources: Observable<any>[]) => sources[0].pipe(
         tap(data => console.log(`About to double ${data}`)),
         map((data: number) => `The incoming data is ${data}, and twice that is ${data * 2}.`)
     );
 
-    filterScanOperation = (sources: Observable<any>[]) => sources[0].pipe(
+    filterScanOperation = (...sources: Observable<any>[]) => sources[0].pipe(
         filter((data) => data % 2 === 0),
         scan((acc: number[], data: number) => [...acc, data], [])
     );
     
-    concatMapOperation = (sources: ObservableInput<any>[]) => {
-        return of().pipe(
-            switchMap(_ => sources)
-        );                    
+    switchMapOperationFactory(innerObservableFactory: any) {
+        return (source: Observable<any>) => {
+            return source.pipe(
+                switchMap(element => innerObservableFactory(element))
+            )
+        }
+    }
 
+    concatMapOperationFactory(innerObservableFactory: any) {
+        return (source: Observable<any>) => {
+            return source.pipe(
+                concatMap(element => innerObservableFactory(element)),                
+            )
+        }
     }
-    switchMapOperation = (sources: Observable<any>[]) => {
-        return of().pipe(
-            switchMap(_ => sources)
-        );                    
+
+    mergeMapOperationFactory(innerObservableFactory: any) {
+        return (source: Observable<any>) => {
+            return source.pipe(
+                mergeMap(element => innerObservableFactory(element))
+            )
+        }        
     }
-    mergeMapOperation = (sources: Observable<any>[]) => {
-        return of().pipe(
-            mergeMap(_ => sources)
-        );                    
-    }
-    exhaustMapOperation = (sources: Observable<any>[]) => {
-        return of().pipe(
-            exhaustMap(_ => sources)
-        );                    
+    exhaustMapOperationFactory(innerObservableFactory: any) {
+        return (source: Observable<any>) => {
+            return source.pipe(            
+                exhaustMap(element => innerObservableFactory(element))
+            )
+        }
     }
     
     
@@ -169,50 +178,64 @@ export class OperationService {
         return operations;
     }
 
-    getHigherOrderOperations(...observableFactories: (() => Observable<any>)[]) {
+    getHigherOrderOperations(outerObservableFactory: () => Observable<any>, innerObservableFactory: (element: any) => Observable<any>) {
         let operations: DemoOperation[] = [
             {
                 title:'concatMap',
-                shortDescription: 'Combines all emitted data, ensuring the data stream is processed in the order it was received.',
-                description: ``,
-                code: '... .pipe(' + 
-                    'concatMap(_ => sources)' +
+                shortDescription: 'Flattens all inner data streams into a single stream, ensuring the inner data streams are processed in the order they were received.',
+                description: `If the order of a data stream matters, you go with concatMap. This will make sure that everything in the Inner Observable
+                is complete before processing data of the next emitted stream. You MUST make sure when using this that you are using data streams/observables that complete,
+                otherwise the other streams will never be processed.
+                
+                This function also ensures that every emitted piece of data is processed.`,
+                code: '... .pipe(\n' + 
+                    'concatMap(_ => sources)\n' +
                 '); ',
-                observables$: observableFactories.map(f => f()),
-                callback: this.concatMapOperation
+                observables$: [outerObservableFactory()],
+                callback: this.concatMapOperationFactory(innerObservableFactory)
             },
             {
                 title:'switchMap',
-                shortDescription: 'filters out items before accumulating them',
-                description: `Filtering on its own has little value, but if you can collect all the filtered values into one item, the advantages of filter grows exponentially. This example
-                filters out all odd values, like in the basic example, and then combines those results into an array, like in the basic example.`,
+                shortDescription: 'Flattens all inner data streams into a single stream, cancelling prior streams if a new one comes in.',
+                description: `If one data stream emits and you want that to override the previous data stream, you would use this method. It immediately cancels the
+                subscription to the previous inner data stream and subscribes to the present one. Typically this is used for things like a typeahead search, or changing filters on
+                a table lookup.
+                
+                Note that this function does not guarantee to process all data, please use this method with that understanding.`,                
                 code: 
-                    'filter((data) => data % 2 === 0),\r\n' + 
-                    'scan((acc: number[], data: number) => [...acc, data], [])',
-                observables$: observableFactories.map(f => f()),
-                callback: this.switchMapOperation
+                    '... .pipe(\n' + 
+                    '  switchMap(_ => sources)\n' +
+                '); ',
+                observables$: [outerObservableFactory()],
+                callback: this.switchMapOperationFactory(innerObservableFactory)
             },
             {
                 title:'mergeMap',
-                shortDescription: 'Allows for logging of incoming items prior to transformation',
-                description: `In development, you will often want to see what the data looks like at a certain stage, prior to manipulating. Combining tap and map operators
-                allows you to do this very thing. You can also use tap-map combinations to make side calls to a server, or update information elsewhere in the app before
-                transforming raw data into a formatted value for the user to see. Use the console log window (F12) to see what's getting logged, prior to the value being mapped for display`,
-                code: 'tap(data => console.log(About to double ${data}`)),\r\n' + 
-                    'map((data: number) => `The incoming data is ${data}, and twice that is ${data * 2}.`)',
-                observables$: observableFactories.map(f => f()),
-                callback: this.mergeMapOperation
+                shortDescription: 'Flattens all inner data streams into a single stream, and whenever any of the inner data streams emits a value, it process it immediately.',
+                description: `If it doesn't matter what the result is of the Outer Observable, and you would rather just process the data as soon as possible, mergeMap is your choice.
+                
+                This function also ensures that every emitted piece of data is processed.`,
+                code: 
+                    '... .pipe(\n' + 
+                    '  mergeMap(_ => sources)\n' +
+                '); ',
+                observables$: [outerObservableFactory()],
+                callback: this.mergeMapOperationFactory(innerObservableFactory)
             },
             {
                 title:'exhaustMap',
-                shortDescription: 'filters out items before accumulating them',
+                shortDescription: 'Flattens all inner data streams into a single stream, not accepting any incoming data streams until the current inner stream is processing.',
                 description: `Filtering on its own has little value, but if you can collect all the filtered values into one item, the advantages of filter grows exponentially. This example
-                filters out all odd values, like in the basic example, and then combines those results into an array, like in the basic example.`,
+                filters out all odd values, like in the basic example, and then combines those results into an array, like in the basic example. One of the most common uses of this
+                is preventing users from submitting a form twice.
+                
+                Note that this function does not guarantee to process all data, please use this method with that understanding.`,
                 code: 
-                    'filter((data) => data % 2 === 0),\r\n' + 
-                    'scan((acc: number[], data: number) => [...acc, data], [])',
-                observables$: observableFactories.map(f => f()),
-                callback: this.exhaustMapOperation
+                    '... .pipe(\n' + 
+                    '  exhaustMap(_ => sources)\n' +
+                '); ',
+                observables$: [outerObservableFactory()],
+                callback: this.exhaustMapOperationFactory(innerObservableFactory)
             },
         ]
         return operations;

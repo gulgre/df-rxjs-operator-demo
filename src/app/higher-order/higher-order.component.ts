@@ -13,7 +13,7 @@ export class HigherOrderComponent implements OnInit {
   
   operations= this.operationService.getHigherOrderOperations(
     () => this.dataService.getBasicDataStream(400,10),
-    () => this.dataService.getBasicDataStream(300,10, 10)
+    (source: number) => this.dataService.getBasicDataStream(1000 / source,5, source * 10)
   );  
   ngOnInit(): void {
   }
