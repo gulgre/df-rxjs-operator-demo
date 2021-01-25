@@ -120,9 +120,7 @@ export class OperationService {
                 numbers 6 through 10, emitted every 800ms.
 
                 Notice how the numbers still maintain their order.`,                
-                code: 'source.pipe(\n' +
-'concat(source1, source2, source3, ...) OR concat(...sources)\n' + 
-');',
+                code: 'concat(source1, source2, source3, ...) OR concat(...sources)',
                 observables$: observableFactories.map(f => f()),
                 callback: this.concatOperation
             },
@@ -139,9 +137,7 @@ export class OperationService {
                 numbers 6 through 10, emitted every 800ms.
 
                 Notice how the numbers jump out of order.`,                
-                code: 'source.pipe(\n' +
-'merge(source1, source2, source3, ...) OR merge(...sources)\n' + 
-');',
+                code: 'merge(source1, source2, source3, ...) OR merge(...sources)',
                 observables$: observableFactories.map(f => f()),
                 callback: this.mergeOperation
             },
